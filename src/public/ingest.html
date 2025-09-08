@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>EvoHome Bolt Import</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body { font-family: ui-sans-serif, system-ui; margin:20px; }
+    textarea { width:100%; height:200px; font-family: ui-monospace, Menlo, monospace; }
+    .box { border:1px solid #ddd; padding:12px; border-radius:8px; margin-bottom:16px; }
+    button { padding:10px 16px; border-radius:8px; background:#2B4C9B; color:white; border:none; cursor:pointer; }
+    button:disabled{opacity:.6}
+  </style>
+</head>
+<body>
+  <h1>EvoHome Import (Bolt files 1–37)</h1>
+  <p>Paste the <strong>raw code</strong> for each file in order. You can paste multiple files at once separated by a marker like:<br>
+  <code>=== FILE: src/pages/ServicesPage.tsx ===</code></p>
+
+  <div class="box">
+    <textarea id="blob" placeholder="Paste ALL content you sent me (1–37) here"></textarea>
+    <div style="margin-top:8px">
+      <button id="btn">Ingest</button>
+    </div>
+  </div>
+  <pre id="out"></pre>
+
+<script>
+document.getElementById('btn').onclick = async () => {
+  const blob = document.getElementById('blob').value;
+  document.getElementById('btn').disabled = true;
+  const res = await fetch('/api/ingest', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ blob })
+  });
+  const data = await res.json();
+  document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+  document.getElementById('btn').disabled = false;
+};
+</script>
+</body>
+</html>
