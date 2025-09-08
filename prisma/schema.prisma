@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role { OWNER EDITOR VIEWER }
+
+model AdminUser {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String
+  role         Role    @default(OWNER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model CompanyInfo {
+  id            Int     @id @default(1)
+  name          String
+  phone         String
+  whatsapp      String?
+  email         String
+  address       String?
+  openingHours  Json?
+  socialLinks   Json?
+  coverageAreas String[] @default([])
+  logoUrl       String?
+  seoDefaults   Json?    // site-wide defaults
+}
+
+model NavigationItem {
+  id        String  @id @default(cuid())
+  label     String
+  href      String
+  order     Int      @default(0)
+  location  String   // header|footer|both
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SeoRecord {
+  id        String  @id @default(cuid())
+  route     String  @unique // e.g. /, /services, /services/:slug, /:service/:county, /blog/:slug
+  title     String?
+  description String?
+  canonical String?
+  jsonLd    Json?
+  noindex   Boolean @default(false)
+}
+
+model County {
+  id        String  @id @default(cuid())
+  name      String
+  slug      String  @unique
+  description String?
+  isPrimary Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id              String  @id @default(cuid())
+  name            String
+  slug            String  @unique
+  category        String
+  image           String?
+  description     String?
+  longDescription String?
+  averageSavings  String?
+  installTime     String?
+  warranty        String?
+  benefits        String[] @default([])
+  whatIsIt        String?
+  whyChooseContent String?
+  howEvoHomeHelpsContent String?
+  howItWorksSteps Json?   // { title, description }[]
+  comparisonTable Json?   // { feature, sahp, electric, solar }[]
+  serviceTypes    Json?   // { name, description, features[] }[]
+  materials       Json?   // { name, description, pros[], cons[], bestFor }[]
+  relatedArticles Json?   // { title, slug, image, category, description }[]
+  externalResources Json? // { title, url }[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlogPost {
+  id        String  @id @default(cuid())
+  title     String
+  slug      String  @unique
+  excerpt   String?
+  content   String  // HTML (from your BlogPostPage.tsx)
+  date      DateTime
+  author    String
+  category  String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryImage {
+  id        String  @id @default(cuid())
+  src       String
+  alt       String
+  category  String?
+  title     String?
+  order     Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String  @id @default(cuid())
+  name      String
+  date      DateTime
+  rating    Int
+  text      String
+  service   String?
+  location  String?
+  savings   String?
+  verified  Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+
+model HeroSlide {
+  id        String  @id @default(cuid())
+  image     String
+  title     String
+  subtitle  String?
+  order     Int     @default(0)
+  enabled   Boolean @default(true)
+}
+
+model TrustSignal {
+  id        String  @id @default(cuid())
+  icon      String
+  label     String
+  description String?
+  order     Int     @default(0)
+}
+
+model RequestQuoteSettings {
+  id           Int     @id @default(1)
+  heroTitle    String?
+  heroSubtitle String?
+  areasLine    String?
+  processSteps String[] @default([])
+  trustPoints  Json?    // { icon, title, description }[]
+  testimonials Json?    // snapshot for page (or pull from Testimonial)
+  formSchema   Json?    // fields, required flags, labels, placeholders
+  recipients   String[] @default([])
+  webhookUrl   String?
+  gdprBlocks   Json?    // text sections
+}
+
+model FormSubmission {
+  id               String  @id @default(cuid())
+  firstName        String?
+  lastName         String?
+  email            String?
+  phone            String?
+  postcode         String?
+  streetAddress    String?
+  service          String?
+  message          String?
+  marketingConsent Boolean @default(false)
+  dataConsent      Boolean @default(false)
+  rawPayload       Json?
+  createdAt        DateTime @default(now())
+}
+
+model ChatbotConfig {
+  id             Int    @id @default(1)
+  enabled        Boolean @default(true)
+  systemPrompt   String?
+  quickActions   String[] @default([])
+  cannedReplies  Json?    // { key, text }
+  useOpenAI      Boolean  @default(false)
+  model          String?  // e.g., gpt-4o-mini
+  temperature    Float?   @default(0.7)
+  maxTokens      Int?     @default(250)
+}
+
